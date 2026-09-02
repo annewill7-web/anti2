@@ -77,6 +77,15 @@ document.addEventListener("DOMContentLoaded", () => {
 
 // Load Settings & Saved State from LocalStorage
 function loadSettings() {
+  const savedSeoulKey = localStorage.getItem("seoul_api_key");
+  const seoulKeyInput = document.getElementById("seoulApiKeyInput");
+  if (seoulKeyInput) {
+    if (savedSeoulKey) seoulKeyInput.value = savedSeoulKey;
+    seoulKeyInput.addEventListener("input", (e) => {
+      localStorage.setItem("seoul_api_key", e.target.value.trim());
+    });
+  }
+
   const savedKey = localStorage.getItem("openrouter_api_key");
   if (savedKey) {
     state.apiKey = savedKey;
