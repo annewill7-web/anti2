@@ -225,6 +225,155 @@ body {
   border-radius: var(--radius-md);
 }
 
+/* Data Knowledgebase & Dropzone */
+.dropzone {
+  border: 2px dashed rgba(99, 102, 241, 0.4);
+  border-radius: var(--radius-md);
+  padding: 16px 12px;
+  text-align: center;
+  background: rgba(30, 41, 59, 0.3);
+  cursor: pointer;
+  transition: var(--transition-fast);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  position: relative;
+}
+
+.dropzone:hover,
+.dropzone.dragover {
+  background: rgba(99, 102, 241, 0.15);
+  border-color: var(--primary-accent);
+  box-shadow: 0 0 15px rgba(99, 102, 241, 0.2);
+}
+
+.dropzone i {
+  font-size: 1.5rem;
+  color: var(--primary-accent);
+}
+
+.dropzone span {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+}
+
+.dropzone span strong {
+  color: var(--text-primary);
+}
+
+.hidden-file-input {
+  display: none;
+}
+
+.doc-file-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 8px;
+  max-height: 160px;
+  overflow-y: auto;
+}
+
+.doc-file-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 10px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-sm);
+  font-size: 0.825rem;
+  transition: var(--transition-fast);
+}
+
+.doc-file-card:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.doc-file-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  overflow: hidden;
+}
+
+.doc-file-name {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 140px;
+  color: var(--text-primary);
+  font-weight: 500;
+}
+
+.doc-file-size {
+  font-size: 0.725rem;
+  color: var(--text-muted);
+}
+
+.doc-file-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.doc-remove-btn {
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: var(--transition-fast);
+  background: none;
+  border: none;
+}
+
+.doc-remove-btn:hover {
+  color: var(--danger);
+}
+
+/* Attached Docs Bar in Input Area */
+.attached-docs-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+  font-size: 0.8rem;
+  overflow-x: auto;
+  padding-bottom: 4px;
+}
+
+.attached-docs-label {
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+.attached-docs-chips {
+  display: flex;
+  gap: 6px;
+}
+
+.doc-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(99, 102, 241, 0.2);
+  border: 1px solid rgba(99, 102, 241, 0.4);
+  color: #c7d2fe;
+  padding: 3px 8px;
+  border-radius: var(--radius-full);
+  font-size: 0.775rem;
+  white-space: nowrap;
+}
+
+.attach-file-btn {
+  color: var(--text-secondary);
+  margin-right: 4px;
+}
+
+.attach-file-btn:hover {
+  color: var(--primary-accent);
+}
+
 .toggle-switch-label {
   display: flex;
   align-items: center;

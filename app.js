@@ -17,8 +17,9 @@ let state = {
   apiKey: DEFAULT_API_KEY,
   selectedModel: "google/gemini-2.0-flash-exp:free",
   enableWebSearch: true,
-  systemPrompt: "당신은 친절하고 정직한 AI 비서입니다. 정보나 사실관계를 물어볼 때 지어내거나 추측하지 마세요 (할루시네이션 방지). 웹 검색 결과 및 검증된 최신 사실에 기반하여 명확하고 정확하게 한국어로 답변해 주세요.",
+  systemPrompt: "당신은 첨부된 데이터 문서 및 검증된 사실에 기반하여 답변하는 전문 데이터 분석 AI 비서입니다. 사용자가 질문할 때 제공된 [참고 데이터 문서]를 최우선으로 검색하고 분석하여 명확하고 정확한 정보를 찾아 대답하세요. 데이터 문서에서 질문에 대한 답을 찾을 수 없다면 '제공된 데이터에서 해당 내용을 찾을 수 없습니다'라고 밝히거나 웹검색을 활용하세요.",
   conversations: [], // Array of chat objects { id, title, messages: [] }
+  documents: [], // Array of uploaded doc objects { id, name, size, content, active }
   currentChatId: null,
   isGenerating: false
 };
@@ -32,6 +33,12 @@ const elements = {
   apiKeyInput: document.getElementById("apiKeyInput"),
   toggleKeyVisibility: document.getElementById("toggleKeyVisibility"),
   webSearchToggle: document.getElementById("webSearchToggle"),
+  dropzone: document.getElementById("dropzone"),
+  docFileInput: document.getElementById("docFileInput"),
+  docFileList: document.getElementById("docFileList"),
+  quickAttachBtn: document.getElementById("quickAttachBtn"),
+  attachedDocsBar: document.getElementById("attachedDocsBar"),
+  attachedDocsChips: document.getElementById("attachedDocsChips"),
   modelSelect: document.getElementById("modelSelect"),
   customModelInput: document.getElementById("customModelInput"),
   systemPromptInput: document.getElementById("systemPromptInput"),
@@ -114,6 +121,17 @@ function loadSettings() {
       state.conversations = [];
     }
   }
+
+  const savedDocs = localStorage.getItem("openrouter_documents");
+  if (savedDocs) {
+    try {
+      state.documents = JSON.parse(savedDocs);
+    } catch (e) {
+      state.documents = [];
+    }
+  }
+  renderDocFileList();
+  renderAttachedDocsChips();
 }
 
 // Event Listeners Registration
@@ -143,6 +161,40 @@ function setupEventListeners() {
     state.enableWebSearch = e.target.checked;
     localStorage.setItem("openrouter_web_search", state.enableWebSearch);
   });
+
+  // Dropzone & Document Upload Event Listeners
+  if (elements.dropzone) {
+    elements.dropzone.addEventListener("click", () => elements.docFileInput.click());
+    
+    elements.dropzone.addEventListener("dragover", (e) => {
+      e.preventDefault();
+      elements.dropzone.classList.add("dragover");
+    });
+
+    elements.dropzone.addEventListener("dragleave", () => {
+      elements.dropzone.classList.remove("dragover");
+    });
+
+    elements.dropzone.addEventListener("drop", (e) => {
+      e.preventDefault();
+      elements.dropzone.classList.remove("dragover");
+      if (e.dataTransfer.files.length > 0) {
+        handleFilesUpload(e.dataTransfer.files);
+      }
+    });
+  }
+
+  if (elements.docFileInput) {
+    elements.docFileInput.addEventListener("change", (e) => {
+      if (e.target.files.length > 0) {
+        handleFilesUpload(e.target.files);
+      }
+    });
+  }
+
+  if (elements.quickAttachBtn) {
+    elements.quickAttachBtn.addEventListener("click", () => elements.docFileInput.click());
+  }
 
   // Model Selection
   elements.modelSelect.addEventListener("change", (e) => {
@@ -207,6 +259,105 @@ function setupEventListeners() {
 
 function updateModelBadge() {
   elements.currentModelBadge.textContent = state.selectedModel || "모델 미선택";
+}
+
+// Document Knowledgebase Processing (FileReader)
+function handleFilesUpload(files) {
+  Array.from(files).forEach(file => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const content = e.target.result;
+      const docObj = {
+        id: "doc_" + Date.now() + "_" + Math.random().toString(36).substr(2, 5),
+        name: file.name,
+        size: formatFileSize(file.size),
+        content: content,
+        active: true
+      };
+      
+      // Prevent Duplicate Filenames
+      state.documents = state.documents.filter(d => d.name !== file.name);
+      state.documents.push(docObj);
+      saveDocuments();
+      renderDocFileList();
+      renderAttachedDocsChips();
+    };
+    reader.readAsText(file, "UTF-8");
+  });
+  elements.docFileInput.value = "";
+}
+
+function saveDocuments() {
+  localStorage.setItem("openrouter_documents", JSON.stringify(state.documents));
+}
+
+function renderDocFileList() {
+  if (!elements.docFileList) return;
+  elements.docFileList.innerHTML = "";
+
+  if (state.documents.length === 0) {
+    elements.docFileList.innerHTML = `<div style="font-size:0.75rem; color:var(--text-muted); text-align:center; padding:6px;">첨부된 문서가 없습니다.</div>`;
+    return;
+  }
+
+  state.documents.forEach(doc => {
+    const card = document.createElement("div");
+    card.className = "doc-file-card";
+    card.innerHTML = `
+      <div class="doc-file-info">
+        <input type="checkbox" ${doc.active ? "checked" : ""} class="doc-toggle-chk" title="답변에 반영 여부">
+        <i class="ri-file-text-line"></i>
+        <div>
+          <div class="doc-file-name" title="${escapeHtml(doc.name)}">${escapeHtml(doc.name)}</div>
+          <div class="doc-file-size">${doc.size}</div>
+        </div>
+      </div>
+      <div class="doc-file-actions">
+        <button class="doc-remove-btn" title="삭제"><i class="ri-close-line"></i></button>
+      </div>
+    `;
+
+    card.querySelector(".doc-toggle-chk").addEventListener("change", (e) => {
+      doc.active = e.target.checked;
+      saveDocuments();
+      renderAttachedDocsChips();
+    });
+
+    card.querySelector(".doc-remove-btn").addEventListener("click", () => {
+      deleteDocument(doc.id);
+    });
+
+    elements.docFileList.appendChild(card);
+  });
+}
+
+function deleteDocument(docId) {
+  state.documents = state.documents.filter(d => d.id !== docId);
+  saveDocuments();
+  renderDocFileList();
+  renderAttachedDocsChips();
+}
+
+function renderAttachedDocsChips() {
+  if (!elements.attachedDocsBar || !elements.attachedDocsChips) return;
+  
+  const activeDocs = state.documents.filter(d => d.active);
+  if (activeDocs.length === 0) {
+    elements.attachedDocsBar.classList.add("hidden");
+    elements.attachedDocsChips.innerHTML = "";
+    return;
+  }
+
+  elements.attachedDocsBar.classList.remove("hidden");
+  elements.attachedDocsChips.innerHTML = activeDocs.map(d => `
+    <span class="doc-chip"><i class="ri-file-code-line"></i> ${escapeHtml(d.name)}</span>
+  `).join("");
+}
+
+function formatFileSize(bytes) {
+  if (bytes < 1024) return bytes + " B";
+  if (bytes < 1048576) return (bytes / 1024).toFixed(1) + " KB";
+  return (bytes / 1048576).toFixed(1) + " MB";
 }
 
 // Chat Management
@@ -388,9 +539,19 @@ async function handleSendMessage() {
 
   const typingIndicator = appendTypingIndicator();
 
-  // Prepare Payload
+  // Build Knowledge Context from Active Documents (RAG)
+  let knowledgeContext = "";
+  const activeDocs = state.documents.filter(d => d.active);
+  if (activeDocs.length > 0) {
+    knowledgeContext = "\n\n=== 📄 [사용자 데이터 지식베이스 (첨부된 문서)] ===\n" +
+      activeDocs.map(d => `--- [파일명: ${d.name}] ---\n${d.content}`).join("\n\n") +
+      "\n=== [데이터 문서 끝] ===";
+  }
+
+  // Prepare Payload with Dynamic Knowledge Context
+  const fullSystemPrompt = state.systemPrompt + knowledgeContext;
   const apiMessages = [
-    { role: "system", content: state.systemPrompt },
+    { role: "system", content: fullSystemPrompt },
     ...chat.messages.map(m => ({ role: m.role, content: m.content }))
   ];
 
