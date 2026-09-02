@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OpenRouter AI Assistant - NextGen AI Chat</title>
+  <meta name="description" content="백엔드 없이 오픈라우터 API를 직접 호출하는 초고속 다크 글래스모피즘 AI 챗봇">
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- Remix Icon -->
+  <link href="https://cdn.jsdelivr.net/npm/remixicon@4.2.0/fonts/remixicon.css" rel="stylesheet"/>
+  
+  <!-- Highlight.js CSS for Code Highlighting -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/tokyo-night-dark.min.css">
+  
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="style.css?v=2">
+</head>
+<body>
+  <div class="app-container">
+    <!-- Sidebar / Settings Panel -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <div class="brand">
+          <div class="brand-icon">
+            <i class="ri-sparkling-fill"></i>
+          </div>
+          <h2>OpenRouter AI</h2>
+        </div>
+        <button class="btn-icon mobile-close-btn" id="closeSidebarBtn" title="사이드바 닫기">
+          <i class="ri-close-line"></i>
+        </button>
+      </div>
+
+      <div class="sidebar-content">
+        <!-- New Chat Button -->
+        <button class="btn btn-primary new-chat-btn" id="newChatBtn">
+          <i class="ri-add-line"></i>
+          <span>새 대화 시작하기</span>
+        </button>
+
+        <!-- Web Search Toggle (Prominently at the top) -->
+        <div class="settings-group highlight-box">
+          <div class="section-title">
+            <i class="ri-search-eye-line"></i>
+            <span>🌐 실시간 웹 검색 (Web Search)</span>
+          </div>
+          <label class="toggle-switch-label">
+            <input type="checkbox" id="webSearchToggle" checked>
+            <span class="toggle-slider"></span>
+            <span class="toggle-text">웹검색 활성화 (거짓말/할루시네이션 방지)</span>
+          </label>
+          <p class="help-text">켜두시면 최신 정보나 사실 확인이 필요할 때 AI가 직접 웹을 검색합니다.</p>
+        </div>
+
+        <!-- Settings Section -->
+        <div class="settings-group">
+          <div class="section-title">
+            <i class="ri-key-2-line"></i>
+            <span>API 키 설정</span>
+          </div>
+          <div class="input-wrapper">
+            <input type="password" id="apiKeyInput" placeholder="sk-or-v1-..." autocomplete="off">
+            <button class="btn-icon toggle-visibility-btn" id="toggleKeyVisibility" title="비밀번호 보기/숨기기">
+              <i class="ri-eye-line"></i>
+            </button>
+          </div>
+          <p class="help-text">코드에 삽입된 키가 기본 적용되며, 원하실 경우 언제든 여기서 변경 가능합니다.</p>
+        </div>
+
+        <div class="settings-group">
+          <div class="section-title">
+            <i class="ri-cpu-line"></i>
+            <span>AI 모델 선택</span>
+          </div>
+          <select id="modelSelect" class="select-input">
+            <optgroup label="🚀 추천 모델">
+              <option value="google/gemini-2.0-flash-exp:free" selected>Google Gemini 2.0 Flash (Free)</option>
+              <option value="google/gemini-flash-1.5-8b">Google Gemini Flash 1.5 8B</option>
+              <option value="meta-llama/llama-3.3-70b-instruct">Meta Llama 3.3 70B Instruct</option>
+              <option value="deepseek/deepseek-r1:free">DeepSeek R1 (Free)</option>
+              <option value="deepseek/deepseek-chat">DeepSeek V3 Chat</option>
+              <option value="openai/gpt-4o-mini">OpenAI GPT-4o Mini</option>
+              <option value="anthropic/claude-3.5-haiku">Anthropic Claude 3.5 Haiku</option>
+            </optgroup>
+            <optgroup label="🛠️ 사용자 직접 입력">
+              <option value="custom">직접 모델 ID 입력하기...</option>
+            </optgroup>
+          </select>
+          <input type="text" id="customModelInput" class="custom-model-input hidden" placeholder="예: mistralai/mistral-7b-instruct">
+        </div>
+
+        <div class="settings-group">
+          <div class="section-title">
+            <i class="ri-command-line"></i>
+            <span>시스템 프롬프트 (페르소나)</span>
+          </div>
+          <textarea id="systemPromptInput" rows="3" placeholder="AI의 역할이나 대화 스타일을 정의하세요...">당신은 친절하고 전문적인 AI 비서입니다. 사용자의 질문에 명확하고 정돈된 한국어로 답변해 주세요.</textarea>
+        </div>
+
+        <!-- Chat History List -->
+        <div class="history-group">
+          <div class="section-title">
+            <i class="ri-history-line"></i>
+            <span>최근 대화 기록</span>
+          </div>
+          <div class="history-list" id="historyList">
+            <!-- Dynamically populated -->
+          </div>
+        </div>
+      </div>
+
+      <div class="sidebar-footer">
+        <button class="btn btn-danger btn-sm" id="clearHistoryBtn">
+          <i class="ri-delete-bin-line"></i>
+          <span>대화 기록 전체 삭제</span>
+        </button>
+      </div>
+    </aside>
+
+    <!-- Main Chat Workspace -->
+    <main class="chat-main">
+      <!-- Chat Header -->
+      <header class="chat-header">
+        <div class="header-left">
+          <button class="btn-icon toggle-sidebar-btn" id="toggleSidebarBtn" title="설정 메뉴 열기">
+            <i class="ri-menu-fold-line"></i>
+          </button>
+          <div class="current-model-info">
+            <span class="status-indicator"></span>
+            <span id="currentModelBadge" class="model-badge">google/gemini-2.0-flash-exp:free</span>
+          </div>
+        </div>
+        <div class="header-right">
+          <button class="btn-icon" id="themeToggleBtn" title="화면 구성 가동 알림">
+            <i class="ri-sun-line"></i>
+          </button>
+        </div>
+      </header>
+
+      <!-- Chat Messages Scroll Container -->
+      <div class="chat-body" id="chatBody">
+        <!-- Welcome Screen (shown when chat is empty) -->
+        <div class="welcome-screen" id="welcomeScreen">
+          <div class="welcome-icon">
+            <i class="ri-robot-2-line"></i>
+          </div>
+          <h1>무엇을 도와드릴까요?</h1>
+          <p>백엔드 연결 없이 OpenRouter API를 통해 직접 작동하는 AI 챗봇입니다.</p>
+          
+          <div class="quick-prompts">
+            <button class="prompt-card" data-prompt="오늘 하루를 활기차게 시작할 수 있는 명언 3개 추천해줘.">
+              <i class="ri-lightbulb-line"></i>
+              <span>동기부여 명언 추천</span>
+            </button>
+            <button class="prompt-card" data-prompt="자바스크립트에서 Async/Await의 개념과 사용 예시를 쉬운 코드와 함께 설명해줘.">
+              <i class="ri-code-s-slash-line"></i>
+              <span>JavaScript 개념 설명</span>
+            </button>
+            <button class="prompt-card" data-prompt="OpenRouter API의 주요 특징과 장점이 뭐야?">
+              <i class="ri-question-line"></i>
+              <span>OpenRouter 특징 질문</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Dynamic Messages container -->
+        <div class="messages-list" id="messagesList"></div>
+      </div>
+
+      <!-- Chat Input Area -->
+      <div class="chat-input-container">
+        <form class="chat-input-form" id="chatForm">
+          <div class="textarea-wrapper">
+            <textarea id="userPrompt" placeholder="메시지를 입력하세요... (Shift + Enter로 줄바꿈)" rows="1"></textarea>
+            <div class="input-actions">
+              <button type="submit" class="send-btn" id="sendBtn" title="전송 (Enter)">
+                <i class="ri-send-plane-2-fill"></i>
+              </button>
+            </div>
+          </div>
+        </form>
+        <div class="footer-note">
+          AI의 답변은 실수할 수 있습니다. 중요한 정보를 재확인하세요.
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Marked.js for Markdown Parsing -->
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <!-- Highlight.js for Code Highlighting -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <!-- Custom JS -->
+  <script src="app.js?v=2"></script>
+</body>
+</html>
