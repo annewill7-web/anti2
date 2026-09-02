@@ -77,6 +77,17 @@ document.addEventListener("DOMContentLoaded", () => {
 
 // Load Settings & Saved State from LocalStorage
 function loadSettings() {
+  const savedSeoulKey = localStorage.getItem("seoul_api_key");
+  const seoulKeyInput = document.getElementById("seoulApiKeyInput");
+  if (savedSeoulKey && seoulKeyInput) {
+    seoulKeyInput.value = savedSeoulKey;
+  }
+  if (seoulKeyInput) {
+    seoulKeyInput.addEventListener("input", (e) => {
+      localStorage.setItem("seoul_api_key", e.target.value.trim());
+    });
+  }
+
   const savedKey = localStorage.getItem("openrouter_api_key");
   if (savedKey) {
     state.apiKey = savedKey;
@@ -329,8 +340,13 @@ async function fetchSeoulSchoolApiData() {
   }
 
   try {
-    // 서울시 학교시설 개방 Open API 샘플 호출 (샘플키 sample은 최대 5건 1/5/ 제한)
-    const response = await fetch("http://openapi.seoul.go.kr:8088/sample/json/schoolInfoOpen/1/5/");
+    const seoulKeyInput = document.getElementById("seoulApiKeyInput");
+    const userKey = seoulKeyInput ? seoulKeyInput.value.trim() : "";
+    const apiKey = userKey || "sample";
+    const fetchLimit = apiKey === "sample" ? 5 : 1000;
+
+    // 서울시 학교시설 개방 Open API 호출 (샘플키 sample은 최대 5건 제한, 개인키는 1000건)
+    const response = await fetch(`http://openapi.seoul.go.kr:8088/${apiKey}/json/schoolInfoOpen/1/${fetchLimit}/`);
     if (!response.ok) throw new Error("서울시 공공 API 통신 실패");
     
     const textResponse = await response.text();
