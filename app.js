@@ -312,9 +312,23 @@ async function fetchSeoulSchoolApiData() {
     
     const textResponse = await response.text();
     if (textResponse.trim().startsWith("<")) {
-      // XML 에러 응답인 경우
-      const matchMsg = textResponse.match(/<MESSAGE><!\[CDATA\[(.*?)\]\]><\/MESSAGE>/) || textResponse.match(/<MESSAGE>(.*?)<\/MESSAGE>/);
-      const errMsg = matchMsg ? matchMsg[1] : "서울시 API에서 XML 에러를 반환했습니다.";
+      // XML 에러 응답인 경우 DOMParser로 정확한 사유 추출
+      let errMsg = "서울시 API 응답 오류가 발생했습니다.";
+      try {
+        const parser = new DOMParser();
+        const xmlDoc = parser.parseFromString(textResponse, "text/xml");
+        const msgElem = xmlDoc.querySelector("MESSAGE");
+        const codeElem = xmlDoc.querySelector("CODE");
+        if (msgElem && msgElem.textContent) {
+          errMsg = msgElem.textContent.trim();
+        }
+        if (codeElem && codeElem.textContent === "INFO-100") {
+          errMsg = "입력하신 서울시 API 인증키가 유효하지 않습니다. (인증키를 올바르게 입력하시거나 빈칸으로 두시면 sample 키로 5건 정상 조회됩니다.)";
+        }
+      } catch (e) {
+        const matchMsg = textResponse.match(/<MESSAGE>(?:<!\[CDATA\[)?([\s\S]*?)(?:\]\]>)?<\/MESSAGE>/i);
+        if (matchMsg) errMsg = matchMsg[1].replace(/<!\[CDATA\[|\]\]>/g, '').trim();
+      }
       throw new Error(errMsg);
     }
 
