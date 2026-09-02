@@ -1,25 +1,30 @@
 <!DOCTYPE html>
 <html lang="ko">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>OpenRouter AI Assistant - NextGen AI Chat</title>
   <meta name="description" content="백엔드 없이 오픈라우터 API를 직접 호출하는 초고속 다크 글래스모피즘 AI 챗봇">
-  
+
   <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  
+  <link
+    href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&family=Inter:wght@300;400;500;600;700&display=swap"
+    rel="stylesheet">
+
   <!-- Remix Icon -->
-  <link href="https://cdn.jsdelivr.net/npm/remixicon@4.2.0/fonts/remixicon.css" rel="stylesheet"/>
-  
+  <link href="https://cdn.jsdelivr.net/npm/remixicon@4.2.0/fonts/remixicon.css" rel="stylesheet" />
+
   <!-- Highlight.js CSS for Code Highlighting -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/tokyo-night-dark.min.css">
-  
+  <link rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/tokyo-night-dark.min.css">
+
   <!-- Custom CSS -->
   <link rel="stylesheet" href="style.css?v=2">
 </head>
+
 <body>
   <div class="app-container">
     <!-- Sidebar / Settings Panel -->
@@ -49,8 +54,9 @@
             <i class="ri-file-search-line"></i>
             <span>📄 데이터 지식베이스 (파일 첨부/검색)</span>
           </div>
-          
-          <button type="button" class="btn btn-secondary load-api-btn" id="fetchSeoulApiBtn" style="width:100%; margin-bottom:8px; background:rgba(168,85,247,0.2); border:1px solid #a855f7; color:#fff;">
+
+          <button type="button" class="btn btn-secondary load-api-btn" id="fetchSeoulApiBtn"
+            style="width:100%; margin-bottom:8px; background:rgba(168,85,247,0.2); border:1px solid #a855f7; color:#fff;">
             <i class="ri-download-cloud-line"></i>
             <span>⚡ 서울시 공공 API 실시간 데이터 불러오기</span>
           </button>
@@ -61,7 +67,7 @@
             <input type="file" id="docFileInput" multiple accept=".txt,.csv,.json,.md,.log" class="hidden-file-input">
           </div>
           <p class="help-text">지원: .txt, .csv, .json, .md (자연어로 질문 시 데이터 안에서 대답)</p>
-          
+
           <div class="doc-file-list" id="docFileList">
             <!-- Dynamically populated files -->
           </div>
@@ -115,7 +121,8 @@
               <option value="custom">직접 모델 ID 입력하기...</option>
             </optgroup>
           </select>
-          <input type="text" id="customModelInput" class="custom-model-input hidden" placeholder="예: mistralai/mistral-7b-instruct">
+          <input type="text" id="customModelInput" class="custom-model-input hidden"
+            placeholder="예: mistralai/mistral-7b-instruct">
         </div>
 
         <div class="settings-group">
@@ -123,7 +130,8 @@
             <i class="ri-command-line"></i>
             <span>시스템 프롬프트 (페르소나)</span>
           </div>
-          <textarea id="systemPromptInput" rows="3" placeholder="AI의 역할이나 대화 스타일을 정의하세요...">당신은 친절하고 전문적인 AI 비서입니다. 사용자의 질문에 명확하고 정돈된 한국어로 답변해 주세요.</textarea>
+          <textarea id="systemPromptInput" rows="3"
+            placeholder="AI의 역할이나 대화 스타일을 정의하세요...">당신은 친절하고 전문적인 AI 비서입니다. 사용자의 질문에 명확하고 정돈된 한국어로 답변해 주세요.</textarea>
         </div>
 
         <!-- Chat History List -->
@@ -175,7 +183,7 @@
           </div>
           <h1>무엇을 도와드릴까요?</h1>
           <p>백엔드 연결 없이 OpenRouter API를 통해 직접 작동하는 AI 챗봇입니다.</p>
-          
+
           <div class="quick-prompts">
             <button class="prompt-card" data-prompt="첨부된 데이터에서 서울시 학교시설 개방 정보의 공개일자, 제공기관, 담당자 연락처를 알려줘.">
               <i class="ri-building-4-line"></i>
@@ -206,7 +214,8 @@
 
         <form class="chat-input-form" id="chatForm">
           <div class="textarea-wrapper">
-            <button type="button" class="btn-icon attach-file-btn" id="quickAttachBtn" title="데이터 파일 첨부 (.txt, .csv, .json, .md)">
+            <button type="button" class="btn-icon attach-file-btn" id="quickAttachBtn"
+              title="데이터 파일 첨부 (.txt, .csv, .json, .md)">
               <i class="ri-attachment-2"></i>
             </button>
             <textarea id="userPrompt" placeholder="데이터에 대해 자연어로 질문하세요... (Shift + Enter로 줄바꿈)" rows="1"></textarea>
@@ -231,4 +240,5 @@
   <!-- Custom JS -->
   <script src="app.js?v=2"></script>
 </body>
+
 </html>
