@@ -249,6 +249,12 @@ function setupEventListeners() {
     elements.quickAttachBtn.addEventListener("click", () => elements.docFileInput.click());
   }
 
+  // Seoul Public API Direct Fetching Button Event
+  const fetchSeoulApiBtn = document.getElementById("fetchSeoulApiBtn");
+  if (fetchSeoulApiBtn) {
+    fetchSeoulApiBtn.addEventListener("click", fetchSeoulSchoolApiData);
+  }
+
   // Model Selection
   elements.modelSelect.addEventListener("change", (e) => {
     if (e.target.value === "custom") {
@@ -312,6 +318,64 @@ function setupEventListeners() {
 
 function updateModelBadge() {
   elements.currentModelBadge.textContent = state.selectedModel || "모델 미선택";
+}
+
+// Fetch Realtime Seoul School Facility Open API Data
+async function fetchSeoulSchoolApiData() {
+  const btn = document.getElementById("fetchSeoulApiBtn");
+  if (btn) {
+    btn.disabled = true;
+    btn.innerHTML = `<i class="ri-loader-4-line ri-spin"></i> 서울시 데이터 불러오는 중...`;
+  }
+
+  try {
+    // 서울시 학교시설 개방 Open API 샘플 호출 (http://openapi.seoul.go.kr:8088/sample/json/schoolInfoOpen/1/10/)
+    const response = await fetch("http://openapi.seoul.go.kr:8088/sample/json/schoolInfoOpen/1/10/");
+    if (!response.ok) throw new Error("서울시 공공 API 통신 실패");
+    
+    const data = await response.json();
+    const rows = data.schoolInfoOpen?.row || [];
+
+    if (rows.length === 0) throw new Error("가져온 데이터가 없습니다.");
+
+    // Parse Data into readable Text Format
+    let formattedText = `[서울시 학교별 학교시설 개방 실시간 API 데이터 (총 ${rows.length}개 학교)]\n\n`;
+    rows.forEach((r, idx) => {
+      formattedText += `${idx + 1}. 학교명: ${r.SCHL_NM} (${r.SCHL_CRS_SE_NM || '학교'})\n`;
+      formattedText += `   - 교육청: ${r.CTPV_EDUO} / 교육지원청: ${r.EDU_SPRT}\n`;
+      formattedText += `   - 체육장 개방여부: ${r.STDM_OPN_YN === 'Y' ? '개방 (Y)' : '미개방 (N)'}\n`;
+      formattedText += `   - 체육관 개방여부: ${r.GYM_OPN_YN === 'Y' ? '개방 (Y)' : '미개방 (N)'}\n`;
+      formattedText += `   - 강당 개방여부: ${r.HALL_OPN_YN === 'Y' ? '개방 (Y)' : '미개방 (N)'}\n`;
+      formattedText += `   - 일반교과교실 개방여부: ${r.GNRL_SBJCT_CLAS_OPN_YN === 'Y' ? '개방 (Y)' : '미개방 (N)'}\n`;
+      formattedText += `   - 특별교실 개방여부: ${r.SPC_CLAS_OPN_YN === 'Y' ? '개방 (Y)' : '미개방 (N)'}\n`;
+      formattedText += `   - 시청각실 개방여부: ${r.AVR_OPN_YN === 'Y' ? '개방 (Y)' : '미개방 (N)'}\n\n`;
+    });
+
+    const docObj = {
+      id: "doc_seoul_live_api_" + Date.now(),
+      name: "seoul_school_live_api.txt",
+      size: formatFileSize(formattedText.length),
+      content: formattedText,
+      active: true
+    };
+
+    // Update state documents
+    state.documents = state.documents.filter(d => d.name !== "seoul_school_live_api.txt");
+    state.documents.unshift(docObj);
+    saveDocuments();
+    renderDocFileList();
+    renderAttachedDocsChips();
+
+    alert(`✅ 서울시 공공 API에서 실제 학교 데이터 ${rows.length}건을 성공적으로 불러와 지식베이스에 반영했습니다!`);
+
+  } catch (err) {
+    alert("⚠️ 서울시 API 불러오기 실패: " + err.message + "\n(인터넷 연결 및 CORS 환경을 확인해주세요)");
+  } finally {
+    if (btn) {
+      btn.disabled = false;
+      btn.innerHTML = `<i class="ri-download-cloud-line"></i> <span>⚡ 서울시 공공 API 실시간 데이터 불러오기</span>`;
+    }
+  }
 }
 
 // Document Knowledgebase Processing (FileReader)
