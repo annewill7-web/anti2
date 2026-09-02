@@ -329,11 +329,19 @@ async function fetchSeoulSchoolApiData() {
   }
 
   try {
-    // 서울시 학교시설 개방 Open API 샘플 호출 (http://openapi.seoul.go.kr:8088/sample/json/schoolInfoOpen/1/10/)
-    const response = await fetch("http://openapi.seoul.go.kr:8088/sample/json/schoolInfoOpen/1/10/");
+    // 서울시 학교시설 개방 Open API 샘플 호출 (샘플키 sample은 최대 5건 1/5/ 제한)
+    const response = await fetch("http://openapi.seoul.go.kr:8088/sample/json/schoolInfoOpen/1/5/");
     if (!response.ok) throw new Error("서울시 공공 API 통신 실패");
     
-    const data = await response.json();
+    const textResponse = await response.text();
+    if (textResponse.trim().startsWith("<")) {
+      // XML 에러 응답인 경우
+      const matchMsg = textResponse.match(/<MESSAGE><!\[CDATA\[(.*?)\]\]><\/MESSAGE>/) || textResponse.match(/<MESSAGE>(.*?)<\/MESSAGE>/);
+      const errMsg = matchMsg ? matchMsg[1] : "서울시 API에서 XML 에러를 반환했습니다.";
+      throw new Error(errMsg);
+    }
+
+    const data = JSON.parse(textResponse);
     const rows = data.schoolInfoOpen?.row || [];
 
     if (rows.length === 0) throw new Error("가져온 데이터가 없습니다.");
@@ -343,12 +351,12 @@ async function fetchSeoulSchoolApiData() {
     rows.forEach((r, idx) => {
       formattedText += `${idx + 1}. 학교명: ${r.SCHL_NM} (${r.SCHL_CRS_SE_NM || '학교'})\n`;
       formattedText += `   - 교육청: ${r.CTPV_EDUO} / 교육지원청: ${r.EDU_SPRT}\n`;
-      formattedText += `   - 체육장 개방여부: ${r.STDM_OPN_YN === 'Y' ? '개방 (Y)' : '미개방 (N)'}\n`;
-      formattedText += `   - 체육관 개방여부: ${r.GYM_OPN_YN === 'Y' ? '개방 (Y)' : '미개방 (N)'}\n`;
-      formattedText += `   - 강당 개방여부: ${r.HALL_OPN_YN === 'Y' ? '개방 (Y)' : '미개방 (N)'}\n`;
-      formattedText += `   - 일반교과교실 개방여부: ${r.GNRL_SBJCT_CLAS_OPN_YN === 'Y' ? '개방 (Y)' : '미개방 (N)'}\n`;
-      formattedText += `   - 특별교실 개방여부: ${r.SPC_CLAS_OPN_YN === 'Y' ? '개방 (Y)' : '미개방 (N)'}\n`;
-      formattedText += `   - 시청각실 개방여부: ${r.AVR_OPN_YN === 'Y' ? '개방 (Y)' : '미개방 (N)'}\n\n`;
+      formattedText += `   - 체육장 개방여부: ${r.STDM_OPN_YN || '미입력'}\n`;
+      formattedText += `   - 체육관 개방여부: ${r.GYM_OPN_YN || '미입력'}\n`;
+      formattedText += `   - 강당 개방여부: ${r.HALL_OPN_YN || '미입력'}\n`;
+      formattedText += `   - 일반교과교실 개방여부: ${r.GNRL_SBJCT_CLAS_OPN_YN || '미입력'}\n`;
+      formattedText += `   - 특별교실 개방여부: ${r.SPC_CLAS_OPN_YN || '미입력'}\n`;
+      formattedText += `   - 시청각실 개방여부: ${r.AVR_OPN_YN || '미입력'}\n\n`;
     });
 
     const docObj = {
