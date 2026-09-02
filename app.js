@@ -158,6 +158,41 @@ function setupEventListeners() {
     elements.sidebar.classList.add("collapsed");
   });
 
+  // Clipboard Paste Buttons
+  const pasteSeoulKeyBtn = document.getElementById("pasteSeoulKeyBtn");
+  if (pasteSeoulKeyBtn) {
+    pasteSeoulKeyBtn.addEventListener("click", async () => {
+      try {
+        const text = await navigator.clipboard.readText();
+        const input = document.getElementById("seoulApiKeyInput");
+        if (input && text) {
+          input.value = text.trim();
+          localStorage.setItem("seoul_api_key", input.value);
+          alert("✅ 서울시 API 인증키가 붙여넣어졌습니다!");
+        }
+      } catch (err) {
+        alert("클립보드 접근 권한이 없거나 지원하지 않는 브라우저입니다. Ctrl+V로 직접 붙여넣어 주세요.");
+      }
+    });
+  }
+
+  const pasteOpenRouterKeyBtn = document.getElementById("pasteOpenRouterKeyBtn");
+  if (pasteOpenRouterKeyBtn) {
+    pasteOpenRouterKeyBtn.addEventListener("click", async () => {
+      try {
+        const text = await navigator.clipboard.readText();
+        if (elements.apiKeyInput && text) {
+          elements.apiKeyInput.value = text.trim();
+          state.apiKey = text.trim();
+          localStorage.setItem("openrouter_api_key", state.apiKey);
+          alert("✅ OpenRouter API 키가 붙여넣어졌습니다!");
+        }
+      } catch (err) {
+        alert("클립보드 접근 권한이 없거나 지원하지 않는 브라우저입니다. Ctrl+V로 직접 붙여넣어 주세요.");
+      }
+    });
+  }
+
   // API Key Change & Visibility Toggle
   elements.apiKeyInput.addEventListener("input", (e) => {
     state.apiKey = e.target.value.trim();
