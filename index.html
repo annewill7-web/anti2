@@ -43,8 +43,27 @@
           <span>새 대화 시작하기</span>
         </button>
 
-        <!-- Web Search Toggle (Prominently at the top) -->
-        <div class="settings-group highlight-box">
+        <!-- Data Document Knowledgebase Section (Prominently at top) -->
+        <div class="settings-group highlight-box data-knowledge-group">
+          <div class="section-title">
+            <i class="ri-file-search-line"></i>
+            <span>📄 데이터 지식베이스 (파일 첨부/검색)</span>
+          </div>
+          
+          <div class="dropzone" id="dropzone">
+            <i class="ri-file-upload-line"></i>
+            <span>파일을 끌어다 놓거나 <strong>클릭</strong>하세요</span>
+            <input type="file" id="docFileInput" multiple accept=".txt,.csv,.json,.md,.log" class="hidden-file-input">
+          </div>
+          <p class="help-text">지원: .txt, .csv, .json, .md (자연어로 질문 시 데이터 안에서 대답)</p>
+          
+          <div class="doc-file-list" id="docFileList">
+            <!-- Dynamically populated files -->
+          </div>
+        </div>
+
+        <!-- Web Search Toggle -->
+        <div class="settings-group">
           <div class="section-title">
             <i class="ri-search-eye-line"></i>
             <span>🌐 실시간 웹 검색 (Web Search)</span>
@@ -55,25 +74,6 @@
             <span class="toggle-text">웹검색 활성화 (거짓말/할루시네이션 방지)</span>
           </label>
           <p class="help-text">켜두시면 최신 정보나 사실 확인이 필요할 때 AI가 직접 웹을 검색합니다.</p>
-        </div>
-
-        <!-- Data Document Knowledgebase Section -->
-        <div class="settings-group data-knowledge-group">
-          <div class="section-title">
-            <i class="ri-file-search-line"></i>
-            <span>📄 데이터 지식베이스 (RAG)</span>
-          </div>
-          
-          <div class="dropzone" id="dropzone">
-            <i class="ri-file-upload-line"></i>
-            <span>파일을 끌어다 놓거나 <strong>클릭</strong>하세요</span>
-            <input type="file" id="docFileInput" multiple accept=".txt,.csv,.json,.md,.log" class="hidden-file-input">
-          </div>
-          <p class="help-text">지원 형식: .txt, .csv, .json, .md (자연어로 질문 시 데이터 안에서 대답)</p>
-          
-          <div class="doc-file-list" id="docFileList">
-            <!-- Dynamically populated files -->
-          </div>
         </div>
 
         <!-- Settings Section -->
