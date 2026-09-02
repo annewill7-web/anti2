@@ -131,30 +131,57 @@ function loadSettings() {
     }
   }
   
-  // Default Sample Document if empty
-  if (state.documents.length === 0) {
+  // Default Sample Document with Full Open API Spec
+  const fullSpecContent = `[서울시 학교별 학교시설 개방에 관한 사항 Open API 상세 명세서]
+
+1. 데이터셋 기본 정보
+- 데이터명: 서울시 학교별 학교시설 개방에 관한 사항
+- 서비스명: schoolInfoOpen
+- 공개일자: 2024.05.10. / 데이터 갱신일: 2026.09.01.
+- 저작권자: 한국교육학술정보원 / 제공기관: 서울특별시교육청 (담당자 연락처: 1544-0079)
+
+2. Open API 샘플 URL
+- http://openapi.seoul.go.kr:8088/(인증키)/xml/schoolInfoOpen/1/5/
+
+3. 요청 인자 (Request Parameters)
+- KEY : String (필수) - 발급된 인증키 (샘플키: sample)
+- TYPE : String (필수) - 요청 파일 타입 (xml, xmlf, xls, json)
+- SERVICE : String (필수) - 서비스명 (schoolInfoOpen)
+- START_INDEX : INTEGER (필수) - 페이징 시작번호
+- END_INDEX : INTEGER (필수) - 페이징 끝번호
+
+4. 주요 출력값 (Output Fields)
+- CTPV_EDUO : 시도교육청
+- SCHL_NM : 학교명
+- STDM_OPN_YN : 체육장 개방여부
+- GYM_OPN_YN : 체육관 개방여부
+- HALL_OPN_YN : 강당 개방여부
+- GNRL_SBJCT_CLAS_OPN_YN : 일반교과교실 개방여부
+- SPC_CLAS_OPN_YN : 특별교실 개방여부
+- AVR_OPN_YN : 시청각실 개방여부
+- SCHL_CRS_SE_NM : 학교과정구분명(초-중-고)
+
+5. 에러 메시지 코드 (Error Codes)
+- INFO-000 : 정상 처리되었습니다
+- ERROR-300 : 필수 값이 누락되어 있습니다
+- INFO-100 : 인증키가 유효하지 않습니다
+- ERROR-335 : 샘플키(sample)는 한번에 최대 5건을 넘을 수 없습니다
+- ERROR-336 : 데이터요청은 한번에 최대 1000건을 넘을 수 없습니다`;
+
+  // Update or set default document
+  const existingIndex = state.documents.findIndex(d => d.name === "seoul_school_facility.txt");
+  if (existingIndex !== -1) {
+    state.documents[existingIndex].content = fullSpecContent;
+  } else {
     state.documents.push({
       id: "doc_sample_seoul_school",
       name: "seoul_school_facility.txt",
-      size: "1.2 KB",
-      content: `[서울시 학교별 학교시설 개방에 관한 사항 데이터 정보]
-- 데이터명: 서울시 학교별 학교시설 개방에 관한 사항
-- 데이터 설명: 서울특별시 소재의 학교별 학교시설 개방에 관한 사항에 필요한 정보인 체육장 개방여부, 체육관 개방여부, 강당 개방여부, 일반교과교실 개방여부, 특별교실 개방여부, 시청각실 개방여부 정보가 있습니다.
-- 공개일자: 2024.05.10.
-- 데이터 갱신일: 2026.09.01.
-- 갱신주기: 비정기(자료변경시)
-- 분류: 교육
-- 원본시스템: 학교알리미 (https://www.schoolinfo.go.kr/)
-- 저작권자: 한국교육학술정보원
-- 제공기관: 서울특별시교육청
-- 제공부서: 학교알리미
-- 담당자 연락처: 1544-0079
-- 메타정보 수정일: 2025.03.01.
-- 이용허락범위: 공공누리 1유형 (출처표시, 상업적 이용 및 변경 가능)`,
+      size: "2.4 KB",
+      content: fullSpecContent,
       active: true
     });
-    saveDocuments();
   }
+  saveDocuments();
 
   renderDocFileList();
   renderAttachedDocsChips();
