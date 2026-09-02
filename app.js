@@ -130,6 +130,32 @@ function loadSettings() {
       state.documents = [];
     }
   }
+  
+  // Default Sample Document if empty
+  if (state.documents.length === 0) {
+    state.documents.push({
+      id: "doc_sample_seoul_school",
+      name: "seoul_school_facility.txt",
+      size: "1.2 KB",
+      content: `[서울시 학교별 학교시설 개방에 관한 사항 데이터 정보]
+- 데이터명: 서울시 학교별 학교시설 개방에 관한 사항
+- 데이터 설명: 서울특별시 소재의 학교별 학교시설 개방에 관한 사항에 필요한 정보인 체육장 개방여부, 체육관 개방여부, 강당 개방여부, 일반교과교실 개방여부, 특별교실 개방여부, 시청각실 개방여부 정보가 있습니다.
+- 공개일자: 2024.05.10.
+- 데이터 갱신일: 2026.09.01.
+- 갱신주기: 비정기(자료변경시)
+- 분류: 교육
+- 원본시스템: 학교알리미 (https://www.schoolinfo.go.kr/)
+- 저작권자: 한국교육학술정보원
+- 제공기관: 서울특별시교육청
+- 제공부서: 학교알리미
+- 담당자 연락처: 1544-0079
+- 메타정보 수정일: 2025.03.01.
+- 이용허락범위: 공공누리 1유형 (출처표시, 상업적 이용 및 변경 가능)`,
+      active: true
+    });
+    saveDocuments();
+  }
+
   renderDocFileList();
   renderAttachedDocsChips();
 }
