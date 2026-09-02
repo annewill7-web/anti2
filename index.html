@@ -59,10 +59,10 @@
             <label for="seoulApiKeyInput" style="display:block; font-size:12px; color:var(--text-primary); margin-bottom:4px; font-weight:600;">
               🔑 서울시 열린데이터광장 API 인증키 (선택)
             </label>
-            <div style="display:flex; gap:6px;">
-              <input type="text" id="seoulApiKeyInput" class="select-input" placeholder="인증키 입력 (미입력 시 샘플 5건)" autocomplete="off" style="flex:1; user-select:text !important; -webkit-user-select:text !important;">
-              <button type="button" class="btn btn-secondary" id="pasteSeoulKeyBtn" style="padding:6px 10px; font-size:12px; white-space:nowrap; background:rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.2); color:#fff;" title="클립보드에서 바로 붙여넣기">
-                <i class="ri-clipboard-line"></i> 붙여넣기
+            <div class="input-wrapper">
+              <input type="password" id="seoulApiKeyInput" placeholder="인증키 입력 (미입력 시 샘플 5건)" autocomplete="off">
+              <button class="btn-icon toggle-visibility-btn" id="toggleSeoulKeyVisibility" title="비밀번호 보기/숨기기" type="button">
+                <i class="ri-eye-line"></i>
               </button>
             </div>
             <p class="help-text" style="margin-top:4px; font-size:11px;">키 입력 시 최대 1,000건 실시간 조회 가능 (미입력 시 sample 5건)</p>
@@ -106,15 +106,10 @@
             <i class="ri-key-2-line"></i>
             <span>API 키 설정</span>
           </div>
-          <div class="input-wrapper" style="display:flex; gap:6px;">
-            <div style="position:relative; flex:1;">
-              <input type="password" id="apiKeyInput" placeholder="sk-or-v1-..." autocomplete="off" style="width:100%; user-select:text !important; -webkit-user-select:text !important;">
-              <button class="btn-icon toggle-visibility-btn" id="toggleKeyVisibility" title="비밀번호 보기/숨기기" style="position:absolute; right:8px; top:50%; transform:translateY(-50%);">
-                <i class="ri-eye-line"></i>
-              </button>
-            </div>
-            <button type="button" class="btn btn-secondary" id="pasteOpenRouterKeyBtn" style="padding:6px 10px; font-size:12px; white-space:nowrap; background:rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.2); color:#fff;" title="클립보드에서 바로 붙여넣기">
-              <i class="ri-clipboard-line"></i> 붙여넣기
+          <div class="input-wrapper">
+            <input type="password" id="apiKeyInput" placeholder="sk-or-v1-..." autocomplete="off">
+            <button class="btn-icon toggle-visibility-btn" id="toggleKeyVisibility" title="비밀번호 보기/숨기기" type="button">
+              <i class="ri-eye-line"></i>
             </button>
           </div>
           <p class="help-text">코드에 삽입된 키가 기본 적용되며, 원하실 경우 언제든 여기서 변경 가능합니다.</p>
